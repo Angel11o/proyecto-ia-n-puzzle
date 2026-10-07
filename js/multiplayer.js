@@ -15,7 +15,12 @@ const MP_KEYS = [
 ];
 
 /** Inicializa ambos jugadores con el mismo tablero y sin ganador. */
-function mpStart() { mp.boards = [[...board], [...board]]; mp.moves = [0, 0]; mp.winner = null; }
+function mpStart() {
+  mp.boards = [[...board], [...board]];
+  mp.moves = [0, 0];
+  mp.winner = null;
+  mp.lastDisplayed = [null, null];
+}
 
 /** Aplica localmente un movimiento válido para no añadir latencia a la carrera. */
 function mpMove(player, index) {
@@ -51,6 +56,9 @@ function renderMp() {
   const isReady = isValidBoard(mp.boards[0], size) && isValidBoard(goal, size);
   for (let player = 0; player < 2; player++) {
     const element = mpBoardEls[player];
+    const previous = mp.lastDisplayed[player]?.size === size ? mp.lastDisplayed[player] : null;
+    const previousRects = new Map();
+    if (previous) element.querySelectorAll(".tile[data-value]").forEach((tile) => previousRects.set(tile.dataset.value, tile.getBoundingClientRect()));
     element.innerHTML = "";
     mpPlayerEls[player].classList.toggle("winner", mp.winner === player);
     mpPlayerEls[player].classList.toggle("loser", mp.winner !== null && mp.winner !== player);
@@ -61,9 +69,15 @@ function renderMp() {
     mp.boards[player].forEach((value, index) => {
       const tile = document.createElement("div");
       tile.className = `tile${value === 0 ? " empty" : ""}`;
-      if (value !== 0) { tile.textContent = value; tile.addEventListener("click", () => mpMove(player, index)); }
+      if (value !== 0) {
+        tile.textContent = value;
+        tile.dataset.value = value;
+        tile.addEventListener("click", () => mpMove(player, index));
+      }
       element.appendChild(tile);
     });
+    if (previous) animateSlide(element, previous.cells, mp.boards[player], previousRects);
+    mp.lastDisplayed[player] = { size, cells: [...mp.boards[player]] };
   }
   if (!isReady && !isLoadingGame) statusEl.textContent = "No hay una partida cargada. Pulsa «Nuevo juego» para reintentar.";
   else if (mp.winner !== null) { statusEl.textContent = `¡El Jugador ${mp.winner + 1} gana la carrera! Pulsa «Nuevo juego» para la revancha.`; statusEl.classList.add("solved"); }
@@ -85,7 +99,7 @@ function toggleMultiplayer() {
     solution = null;
     solvePanelEl.hidden = true;
     mpIntroFrom = boardEl.getBoundingClientRect();
-    mp.boards = [[], []]; mp.moves = [0, 0]; mp.winner = null;
+    mp.boards = [[], []]; mp.moves = [0, 0]; mp.winner = null; mp.lastDisplayed = [null, null];
   }
   mp.active = turnOn;
   document.body.classList.toggle("mp-mode", turnOn);

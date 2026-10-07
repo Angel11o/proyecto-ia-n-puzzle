@@ -21,7 +21,7 @@ let timerIntervalId = null;
 let lastDisplayed = null;
 
 /** Estado independiente de cada jugador durante una carrera local. */
-const mp = { active: false, boards: [[], []], moves: [0, 0], winner: null };
+const mp = { active: false, boards: [[], []], moves: [0, 0], winner: null, lastDisplayed: [null, null] };
 
 const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");

@@ -95,13 +95,13 @@ function resetStats() {
 }
 
 /** Anima sólo la ficha que cambió de posición entre dos estados consecutivos. */
-function animateSlide(previousCells, nextCells, previousRects) {
+function animateSlide(boardElement, previousCells, nextCells, previousRects) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const moved = nextCells.filter((value, index) => value !== 0 && previousCells[index] !== value);
   if (moved.length !== 1) return;
   const value = moved[0];
   const oldRect = previousRects.get(String(value));
-  const tile = boardEl.querySelector(`.tile[data-value="${value}"]`);
+  const tile = boardElement.querySelector(`.tile[data-value="${value}"]`);
   if (!oldRect || !tile) return;
   const newRect = tile.getBoundingClientRect();
   const dx = oldRect.left - newRect.left;
@@ -141,7 +141,7 @@ function render() {
     }
     boardEl.appendChild(tile);
   });
-  if (previous) animateSlide(previous.cells, displayBoard, previousRects);
+  if (previous) animateSlide(boardEl, previous.cells, displayBoard, previousRects);
   lastDisplayed = { size, cells: [...displayBoard] };
   const solved = displayBoard.every((value, index) => value === goal[index]);
   if (solved) { stopTimer(); statusEl.textContent = "¡Resuelto!"; statusEl.classList.add("solved"); }

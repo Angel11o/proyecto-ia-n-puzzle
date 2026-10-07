@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>N-Puzzle</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <button id="theme-toggle" type="button" aria-label="Cambiar a modo claro">
+      <!-- Luna (se ve en modo oscuro) -->
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+      </svg>
+      <!-- Sol (se ve en modo claro) -->
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path
+          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+        />
+      </svg>
+    </button>
+ 
+    <button
+      id="mp-toggle"
+      type="button"
+      aria-pressed="false"
+      aria-label="Activar modo multijugador"
+      title="Activar modo multijugador"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="8" r="3.5" />
+        <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+        <circle cx="17.5" cy="9" r="2.5" />
+        <path d="M17 14.5a5 5 0 0 1 4.5 5" />
+      </svg>
+    </button>
+ 
+    <header>
+      <h1>N-Puzzle</h1>
+    </header>
+ 
+    <main>
+      <section id="mode-select" aria-label="Modo de juego">
+        <h2>Modo de juego</h2>
+        <div class="mode-options" id="mode-options"></div>
+      </section>
+ 
+      <section id="controls">
+        <label for="size-select">
+          Tamaño
+          <select id="size-select">
+            <option value="3">3 x 3</option>
+            <option value="4">4 x 4</option>
+            <option value="5">5 x 5</option>
+          </select>
+        </label>
+ 
+        <button id="new-game-btn">Nuevo juego</button>
+        <button
+          id="solve-btn"
+          title="Resolver el tablero usando el algoritmo del backend"
+        >
+          Resolver
+        </button>
+      </section>
+ 
+      <section id="stats" aria-label="Estadísticas de la partida">
+        <span id="move-counter">Movimientos: 0</span>
+        <span id="timer">Tiempo: 00:00</span>
+      </section>
+ 
+      <section id="board-wrapper">
+        <div id="board"></div>
+      </section>
+ 
+      <section id="mp-section" hidden>
+        <div class="mp-boards">
+          <div class="mp-player" id="mp-player-0">
+            <h3>Jugador 1 <small>W A S D</small></h3>
+            <div class="mp-board" id="mp-board-0"></div>
+            <p class="mp-moves" id="mp-moves-0">Movimientos: 0</p>
+            <p class="mp-result" id="mp-result-0"></p>
+          </div>
+          <div class="mp-player" id="mp-player-1">
+            <h3>Jugador 2 <small>← ↑ ↓ →</small></h3>
+            <div class="mp-board" id="mp-board-1"></div>
+            <p class="mp-moves" id="mp-moves-1">Movimientos: 0</p>
+            <p class="mp-result" id="mp-result-1"></p>
+          </div>
+        </div>
+      </section>
+ 
+      <section id="solve-panel" hidden>
+        <div class="solve-progress">
+          <input
+            type="range"
+            id="solve-slider"
+            min="0"
+            max="0"
+            value="0"
+            step="1"
+            aria-label="Paso de la solución"
+          />
+          <span id="solve-step-label">Paso 0 / 0</span>
+        </div>
+ 
+        <div class="solve-buttons">
+          <button id="solve-step-back" title="Paso anterior">⏮</button>
+          <button id="solve-play-pause" title="Reproducir / pausar">▶</button>
+          <button id="solve-step-forward" title="Paso siguiente">⏭</button>
+ 
+          <label class="solve-speed">
+            Velocidad
+            <select id="solve-speed-select">
+              <option value="900">Lenta</option>
+              <option value="500" selected>Normal</option>
+              <option value="200">Rápida</option>
+            </select>
+          </label>
+ 
+          <button id="solve-close" title="Cerrar y volver a jugar">
+            Cerrar
+          </button>
+        </div>
+      </section>
+ 
+      <p id="error-banner" role="alert" hidden></p>
+      <p id="status">Cargando…</p>
+    </main>
+ 
+    <!-- Los scripts clásicos mantienen compatibilidad al abrir el HTML desde iniciar.bat. -->
+    <script src="js/api.js"></script>
+    <script src="js/puzzle-utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/multiplayer.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

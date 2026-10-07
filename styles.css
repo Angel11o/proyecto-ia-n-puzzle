@@ -1,0 +1,635 @@
+/* --- Temas --------------------------------------------------------------
+   Oscuro por defecto (:root). El modo claro se activa con
+   <html data-theme="light">. Todos los colores salen de estas variables. */
+
+:root {
+  color-scheme: dark;
+  --bg: #1b1d22;
+  --panel: #262931;
+  --tile: #3a3f4b;
+  --tile-hover: #4a5061;
+  --accent: #6ea8fe;
+  --text: #f2f3f5;
+  --muted: #9aa0ab;
+  --gap: 8px;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --empty-ring: rgba(255, 255, 255, 0.08);
+  --preview-empty-ring: rgba(255, 255, 255, 0.1);
+  --panel-shadow: none;
+  --tile-shadow: none;
+
+  --error-bg: rgba(255, 99, 99, 0.12);
+  --error-border: rgba(255, 99, 99, 0.5);
+  --error-text: #ffb4b4;
+
+  --win: #3ecf8e;
+  --lose: #ffb4b4;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --tile: #e7ebf3;
+  --tile-hover: #d8dfec;
+  --accent: #2f6fed;
+  --text: #1b1d22;
+  --muted: #5d6573;
+
+  --border: rgba(20, 30, 60, 0.12);
+  --empty-ring: rgba(20, 30, 60, 0.14);
+  --preview-empty-ring: rgba(20, 30, 60, 0.18);
+  --panel-shadow:
+    0 1px 3px rgba(20, 30, 60, 0.08), 0 0 0 1px rgba(20, 30, 60, 0.06);
+  --tile-shadow: 0 1px 2px rgba(20, 30, 60, 0.14);
+
+  --error-bg: rgba(220, 53, 69, 0.08);
+  --error-border: rgba(220, 53, 69, 0.45);
+  --error-text: #b02a37;
+
+  --win: #1a9d5e;
+  --lose: #b02a37;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px 16px;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: 0.02em;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* --- Toggle de tema (esquina superior izquierda) --------------------------- */
+
+#theme-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--panel-shadow);
+}
+
+#theme-toggle:hover {
+  background: var(--tile-hover);
+}
+
+#theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Oscuro -> se muestra la luna. Claro -> se muestra el sol. */
+#theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] #theme-toggle .icon-sun {
+  display: block;
+}
+
+:root[data-theme="light"] #theme-toggle .icon-moon {
+  display: none;
+}
+
+/* --- Toggle multijugador (junto al de tema) -------------------------------- */
+
+#mp-toggle {
+  position: fixed;
+  top: 12px;
+  left: 56px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--panel-shadow);
+}
+
+#mp-toggle:hover {
+  background: var(--tile-hover);
+}
+
+#mp-toggle[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+
+#mp-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#mp-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- Selector de modo --------------------------------------------------- */
+
+#mode-select {
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#mode-select h2 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mode-options {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  background: var(--panel);
+  padding: 6px;
+  border-radius: 16px;
+  box-shadow: var(--panel-shadow);
+  transition: background-color 0.25s ease;
+}
+
+.mode-highlight {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  width: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  opacity: 0.16;
+  transition:
+    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.mode-option {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 12px;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.mode-option:hover {
+  color: var(--text);
+}
+
+.mode-option.active {
+  color: var(--text);
+}
+
+.mode-option.active .mode-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.mode-label {
+  font-size: 0.72rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mode-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  width: 42px;
+  height: 42px;
+}
+
+.mode-preview-cell {
+  background: var(--tile);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  color: var(--muted);
+  opacity: 0;
+  transform: scale(0.5);
+  animation: reveal-cell 0.35s ease forwards;
+}
+
+.mode-preview-cell.empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--preview-empty-ring);
+}
+
+@keyframes reveal-cell {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- Controles ------------------------------------------------------------ */
+
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--panel);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  transition: background-color 0.25s ease;
+}
+
+#controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+select,
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--tile);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+select:hover,
+button:hover:not(:disabled) {
+  background: var(--tile-hover);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Los toggles redondos conservan su fondo propio (la regla de arriba tiene
+   mayor especificidad que #id solo en :hover, así que se reafirma aquí). */
+#theme-toggle,
+#mp-toggle {
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+#mp-toggle[aria-pressed="true"],
+#mp-toggle[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* --- Estadísticas (movimientos y tiempo) ----------------------------------- */
+
+#stats {
+  display: flex;
+  gap: 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Tablero --------------------------------------------------------------- */
+
+#board-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#board {
+  display: grid;
+  gap: var(--gap);
+  width: min(90vw, 420px);
+  aspect-ratio: 1 / 1;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tile);
+  color: var(--text);
+  border-radius: 8px;
+  box-shadow: var(--tile-shadow);
+  font-size: clamp(1.2rem, 5vw, 2rem);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
+}
+
+.tile:hover {
+  background: var(--tile-hover);
+}
+
+.tile:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-moving {
+    animation: none;
+  }
+}
+
+.tile.empty {
+  background: transparent;
+  cursor: default;
+  box-shadow: inset 0 0 0 2px var(--empty-ring);
+}
+
+.board--preview .tile {
+  cursor: default;
+}
+
+.board--preview .tile:hover {
+  background: var(--tile);
+}
+
+.board--preview .tile.empty:hover {
+  background: transparent;
+}
+
+/* --- Panel de reproducción de la solución ---------------------------------- */
+
+#solve-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(90vw, 420px);
+  background: var(--panel);
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  transition: background-color 0.25s ease;
+}
+
+#solve-panel[hidden] {
+  display: none;
+}
+
+.solve-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.solve-progress input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+#solve-step-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.solve-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.solve-speed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.solve-note {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.solve-note code {
+  background: var(--tile);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* --- Modo multijugador ------------------------------------------------------ */
+
+.mp-mode #stats,
+.mp-mode #board-wrapper,
+.mp-mode #solve-panel,
+.mp-mode #solve-btn {
+  display: none;
+}
+
+#mp-section[hidden] {
+  display: none;
+}
+
+.mp-boards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.mp-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  padding: 14px 16px 16px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  box-shadow: var(--panel-shadow);
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+/* El Jugador 2 queda por debajo del 1 para que parezca salir de detrás. */
+.mp-player {
+  position: relative;
+}
+
+#mp-player-0 {
+  z-index: 2;
+}
+
+#mp-player-1 {
+  z-index: 1;
+}
+
+.mp-player h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mp-player h3 small {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.mp-board {
+  display: grid;
+  gap: var(--gap);
+  width: min(86vw, 360px);
+  aspect-ratio: 1 / 1;
+}
+
+.mp-moves {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.mp-result {
+  margin: 0;
+  min-height: 1.4em;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.mp-player.winner {
+  border-color: var(--win);
+}
+
+.mp-player.winner .mp-result {
+  color: var(--win);
+}
+
+.mp-player.loser {
+  opacity: 0.85;
+}
+
+.mp-player.loser .mp-result {
+  color: var(--lose);
+}
+
+/* --- Estado ------------------------------------------------------------- */
+
+#status {
+  color: var(--muted);
+  min-height: 1.4em;
+  text-align: center;
+}
+
+#status.solved {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* En multijugador el mensaje de victoria va en verde. */
+.mp-mode #status.solved {
+  color: var(--win);
+}
+
+/* --- Banner de errores ------------------------------------------------- */
+
+#error-banner {
+  width: min(90vw, 420px);
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+#error-banner[hidden] {
+  display: none;
+}

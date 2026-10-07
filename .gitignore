@@ -1,0 +1,19 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Dependencias y archivos generados
+node_modules/
+coverage/
+dist/
+build/
+
+# Registros
+*.log
+npm-debug.log*

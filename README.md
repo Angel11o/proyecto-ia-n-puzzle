@@ -23,3 +23,11 @@ Aplicación web interactiva del juego N-Puzzle.
 - CSS
 - JavaScript
 - Backend local para la lógica del N-Puzzle
+
+## Backend
+
+La lógica de generación y resolución del N-Puzzle está implementada en un repositorio independiente:
+
+[Backend N-Puzzle — @EdSoria](https://github.com/EdSoria/coco-engine)
+
+Para ejecutar el proyecto completo, primero debes compilar e iniciar ese backend localmente.

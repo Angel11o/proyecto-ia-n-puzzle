@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: dark;
-  --bg: #1b1d22;
+  --bg: #111216;
   --panel: #262931;
   --tile: #3a3f4b;
   --tile-hover: #4a5061;
@@ -25,6 +25,13 @@
 
   --win: #3ecf8e;
   --lose: #ffb4b4;
+
+  --on-accent: #0b1220;
+
+  /* Fondo: casi negro con un resplandor azul suave al centro */
+  --glow: rgba(38, 66, 156, 0.55);
+  --glow-soft: rgba(26, 44, 112, 0.22);
+  --vignette: rgba(0, 0, 0, 0.35);
 }
 
 :root[data-theme="light"] {
@@ -50,6 +57,12 @@
 
   --win: #1a9d5e;
   --lose: #b02a37;
+
+  --on-accent: #ffffff;
+
+  --glow: rgba(47, 111, 237, 0.2);
+  --glow-soft: rgba(47, 111, 237, 0.08);
+  --vignette: rgba(20, 30, 60, 0.06);
 }
 
 * {
@@ -87,6 +100,20 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+}
+
+/* --- Fondo: resplandor azul suave sobre un tono casi negro -------------------
+   Ajusta color e intensidad con --glow, --glow-soft y --vignette en los temas. */
+
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 50% at 38% 28%, var(--vignette), transparent 70%),
+    radial-gradient(ellipse 62% 56% at 52% 64%, var(--glow), var(--glow-soft) 50%, transparent 78%),
+    var(--bg);
 }
 
 /* --- Toggle de tema (esquina superior izquierda) --------------------------- */
@@ -512,8 +539,22 @@ button:disabled {
   display: none;
 }
 
+#mp-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
 #mp-section[hidden] {
   display: none;
+}
+
+.mp-timer {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .mp-boards {
@@ -632,4 +673,225 @@ button:disabled {
 
 #error-banner[hidden] {
   display: none;
+}
+
+/* --- Tablas de puntuación ---------------------------------------------------- */
+
+.scoreboard {
+  width: min(90vw, 420px);
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: var(--panel-shadow);
+  padding: 12px 14px 14px;
+  transition: background-color 0.25s ease;
+}
+
+.scoreboard h2 {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+/* Cada modo muestra sólo su propia tabla. */
+.mp-mode #sb-single,
+body:not(.mp-mode) #sb-mp {
+  display: none;
+}
+
+.sb-list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sb-row {
+  display: grid;
+  grid-template-columns: 1.5rem 1.4rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--tile);
+  font-size: 0.9rem;
+}
+
+.sb-row.empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+.sb-pos {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-trophy {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.trophy {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.sb-row[data-place="1"] {
+  box-shadow: inset 0 0 0 1px rgba(245, 197, 66, 0.55);
+}
+
+.sb-row[data-place="2"] {
+  box-shadow: inset 0 0 0 1px rgba(201, 209, 220, 0.45);
+}
+
+.sb-row[data-place="3"] {
+  box-shadow: inset 0 0 0 1px rgba(205, 127, 50, 0.5);
+}
+
+.sb-row[data-place="1"] .trophy {
+  filter: drop-shadow(0 0 4px rgba(245, 197, 66, 0.65));
+}
+
+.sb-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.sb-meta {
+  color: var(--muted);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.sb-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* La marca recién entrada brilla un momento. */
+.sb-row.sb-new {
+  animation: sb-glow 1.8s ease-out;
+}
+
+@keyframes sb-glow {
+  0% {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  100% {
+    background: var(--tile);
+  }
+}
+
+/* Copia fantasma de quien sale del top: se desvanece sin mover el resto. */
+.sb-row.sb-ghost {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+}
+
+/* --- Ventana para pedir el nombre -------------------------------------------- */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(8, 10, 14, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: min(92vw, 360px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  animation: modal-pop 0.22s ease-out;
+}
+
+.modal-card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.modal-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.modal-card input {
+  font: inherit;
+  color: var(--text);
+  background: var(--tile);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.modal-card input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions .primary,
+.modal-actions .primary:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.modal-actions .primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-row.sb-new,
+  .modal-card {
+    animation: none;
+  }
 }

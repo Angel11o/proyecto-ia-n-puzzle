@@ -10,13 +10,46 @@ async function fetchNewBoard(n, goalBoard) {
   return data.board;
 }
 
+/** Devuelve la ficha que debe moverse al pulsar una dirección (la ficha se mueve hacia esa dirección). */
+function tileIndexForKey(emptyIndex, direction, n) {
+  const row = Math.floor(emptyIndex / n);
+  const col = emptyIndex % n;
+  if (direction === "up" && row < n - 1) return emptyIndex + n;
+  if (direction === "down" && row > 0) return emptyIndex - n;
+  if (direction === "left" && col < n - 1) return emptyIndex + 1;
+  if (direction === "right" && col > 0) return emptyIndex - 1;
+  return -1;
+}
+
+/** Mueve con el teclado en el modo individual; si hay un movimiento en curso lo deja en cola. */
+function singleMoveByKey(direction) {
+  if (mp.active || solution || isSolving || isLoadingGame || !isValidBoard(board, size)) return;
+  if (moveInFlight) { pendingKeyDirection = direction; return; }
+  const index = tileIndexForKey(board.indexOf(0), direction, size);
+  if (index >= 0) tryMove(index);
+}
+
+/** Registra el tiempo de una partida individual resuelta a mano. */
+function onSingleSolved() {
+  stopTimer();
+  submitScore("single", {
+    timeMs: timerElapsedMs,
+    moves: moveCount,
+    boardSize: size,
+    fallbackName: "Jugador",
+    who: "¡Resuelto!",
+  });
+}
+
 /** Envía un movimiento manual al backend y actualiza la partida confirmada. */
 async function tryMove(index) {
   if (mp.active || solution || moveInFlight || isSolving || isLoadingGame || !isValidBoard(board, size)) return;
+  if (sameBoard(board, goal)) return;
   const emptyIndex = board.indexOf(0);
   if (!getAdjacentIndices(emptyIndex, size).includes(index)) return;
   const direction = directionOfEmptyMove(emptyIndex, index, size);
   const boardBefore = board;
+  let solvedNow = false;
   moveInFlight = true;
   try {
     const data = await apiFetch("/api/puzzle/move", { method: "POST", body: JSON.stringify({ size, board: boardBefore, move: direction }) });
@@ -27,11 +60,20 @@ async function tryMove(index) {
     if (moveCount === 0) startTimer();
     moveCount++;
     board = data.board;
+    solvedNow = sameBoard(board, goal);
   } catch (error) {
     if (!error.aborted) showError(`No se pudo mover: ${error.message}`);
   } finally {
     moveInFlight = false;
     render();
+    if (solvedNow) {
+      pendingKeyDirection = null;
+      onSingleSolved();
+    } else if (pendingKeyDirection) {
+      const queued = pendingKeyDirection;
+      pendingKeyDirection = null;
+      singleMoveByKey(queued);
+    }
   }
 }
 
@@ -39,6 +81,7 @@ async function tryMove(index) {
 async function newGame(nextSize = size, nextMode = mode) {
   if (isLoadingGame) return;
   isLoadingGame = true;
+  pendingKeyDirection = null;
   cancelSolveRequest();
   setControlsBusy(true);
   clearError();

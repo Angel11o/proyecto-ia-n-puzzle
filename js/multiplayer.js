@@ -3,6 +3,7 @@ let mpIntroFrom = null;
 
 const mpToggleBtn = document.getElementById("mp-toggle");
 const mpSectionEl = document.getElementById("mp-section");
+const mpTimerEl = document.getElementById("mp-timer");
 const mpPlayerEls = [0, 1].map((player) => document.getElementById(`mp-player-${player}`));
 const mpBoardEls = [0, 1].map((player) => document.getElementById(`mp-board-${player}`));
 const mpMovesEls = [0, 1].map((player) => document.getElementById(`mp-moves-${player}`));
@@ -14,45 +15,84 @@ const MP_KEYS = [
   { arrowup: "up", arrowdown: "down", arrowleft: "left", arrowright: "right" },
 ];
 
+/** Muestra el cronómetro de la carrera. */
+function mpUpdateTimerDisplay() {
+  mpTimerEl.textContent = `Tiempo: ${formatTime(mp.timerRunning ? Date.now() - mp.timerStartedAt : mp.timerElapsedMs)}`;
+}
+
+/** Arranca el cronómetro de la carrera (con el primer movimiento de cualquiera). */
+function mpStartTimer() {
+  if (mp.timerRunning) return;
+  mp.timerRunning = true;
+  mp.timerStartedAt = Date.now() - mp.timerElapsedMs;
+  mp.timerIntervalId = setInterval(mpUpdateTimerDisplay, 250);
+}
+
+/** Detiene el cronómetro conservando el tiempo acumulado. */
+function mpStopTimer() {
+  if (!mp.timerRunning) return;
+  mp.timerElapsedMs = Date.now() - mp.timerStartedAt;
+  mp.timerRunning = false;
+  clearInterval(mp.timerIntervalId);
+  mp.timerIntervalId = null;
+  mpUpdateTimerDisplay();
+}
+
+/** Reinicia el cronómetro a cero. */
+function mpResetTimer() {
+  clearInterval(mp.timerIntervalId);
+  mp.timerIntervalId = null;
+  mp.timerRunning = false;
+  mp.timerStartedAt = null;
+  mp.timerElapsedMs = 0;
+  mpUpdateTimerDisplay();
+}
+
 /** Inicializa ambos jugadores con el mismo tablero y sin ganador. */
 function mpStart() {
   mp.boards = [[...board], [...board]];
   mp.moves = [0, 0];
   mp.winner = null;
   mp.lastDisplayed = [null, null];
+  mpResetTimer();
 }
 
 /** Aplica localmente un movimiento válido para no añadir latencia a la carrera. */
 function mpMove(player, index) {
-  if (!mp.active || mp.winner !== null || isLoadingGame) return;
+  if (!mp.active || mp.winner !== null || isLoadingGame || isNameModalOpen()) return;
   const playerBoard = mp.boards[player];
   if (!isValidBoard(playerBoard, size)) return;
   const emptyIndex = playerBoard.indexOf(0);
   if (!getAdjacentIndices(emptyIndex, size).includes(index)) return;
+  if (!mp.timerRunning && mp.moves[0] + mp.moves[1] === 0) mpStartTimer();
   [playerBoard[emptyIndex], playerBoard[index]] = [playerBoard[index], playerBoard[emptyIndex]];
   mp.moves[player]++;
-  if (playerBoard.every((value, position) => value === goal[position])) mp.winner = player;
+  const won = playerBoard.every((value, position) => value === goal[position]);
+  if (won) { mp.winner = player; mpStopTimer(); }
   renderMp();
+  if (won) {
+    submitScore("mp", {
+      timeMs: mp.timerElapsedMs,
+      moves: mp.moves[player],
+      boardSize: size,
+      fallbackName: `Jugador ${player + 1}`,
+      who: `¡Gana el Jugador ${player + 1}!`,
+    });
+  }
 }
 
 /** Convierte una dirección de teclado en la ficha adyacente que debe moverse. */
 function mpMoveByKey(player, direction) {
   const playerBoard = mp.boards[player];
   if (!isValidBoard(playerBoard, size)) return;
-  const emptyIndex = playerBoard.indexOf(0);
-  const row = Math.floor(emptyIndex / size);
-  const col = emptyIndex % size;
-  let index = -1;
-  if (direction === "up" && row < size - 1) index = emptyIndex + size;
-  if (direction === "down" && row > 0) index = emptyIndex - size;
-  if (direction === "left" && col < size - 1) index = emptyIndex + 1;
-  if (direction === "right" && col > 0) index = emptyIndex - 1;
+  const index = tileIndexForKey(playerBoard.indexOf(0), direction, size);
   if (index >= 0) mpMove(player, index);
 }
 
 /** Renderiza ambos tableros y el resultado actual de la carrera. */
 function renderMp() {
   statusEl.classList.remove("solved");
+  mpUpdateTimerDisplay();
   const isReady = isValidBoard(mp.boards[0], size) && isValidBoard(goal, size);
   for (let player = 0; player < 2; player++) {
     const element = mpBoardEls[player];
@@ -87,11 +127,12 @@ function renderMp() {
 
 /** Activa o desactiva la carrera, preservando el tablero visible al salir. */
 function toggleMultiplayer() {
-  if (isLoadingGame) return;
+  if (isLoadingGame || isNameModalOpen()) return;
   const turnOn = !mp.active;
   const canAnimateExit = !turnOn && isValidBoard(mp.boards[0], size);
   const exitItems = canAnimateExit ? mpMakeClones() : null;
   if (canAnimateExit) board = [...mp.boards[0]];
+  mpResetTimer();
   if (turnOn) {
     cancelSolveRequest();
     pausePlayback();

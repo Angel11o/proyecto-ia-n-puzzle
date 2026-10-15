@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Fondo: resplandor suave (CSS) -->
+    <div class="bg" aria-hidden="true"></div>
+
     <button id="theme-toggle" type="button" aria-label="Cambiar a modo claro">
       <!-- Luna (se ve en modo oscuro) -->
       <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
@@ -20,7 +23,7 @@
         />
       </svg>
     </button>
- 
+
     <button
       id="mp-toggle"
       type="button"
@@ -35,17 +38,17 @@
         <path d="M17 14.5a5 5 0 0 1 4.5 5" />
       </svg>
     </button>
- 
+
     <header>
       <h1>N-Puzzle</h1>
     </header>
- 
+
     <main>
       <section id="mode-select" aria-label="Modo de juego">
         <h2>Modo de juego</h2>
         <div class="mode-options" id="mode-options"></div>
       </section>
- 
+
       <section id="controls">
         <label for="size-select">
           Tamaño
@@ -55,7 +58,7 @@
             <option value="5">5 x 5</option>
           </select>
         </label>
- 
+
         <button id="new-game-btn">Nuevo juego</button>
         <button
           id="solve-btn"
@@ -64,17 +67,18 @@
           Resolver
         </button>
       </section>
- 
+
       <section id="stats" aria-label="Estadísticas de la partida">
         <span id="move-counter">Movimientos: 0</span>
         <span id="timer">Tiempo: 00:00</span>
       </section>
- 
+
       <section id="board-wrapper">
         <div id="board"></div>
       </section>
- 
+
       <section id="mp-section" hidden>
+        <p class="mp-timer" id="mp-timer" aria-label="Cronómetro de la carrera">Tiempo: 00:00</p>
         <div class="mp-boards">
           <div class="mp-player" id="mp-player-0">
             <h3>Jugador 1 <small>W A S D</small></h3>
@@ -90,7 +94,7 @@
           </div>
         </div>
       </section>
- 
+
       <section id="solve-panel" hidden>
         <div class="solve-progress">
           <input
@@ -104,12 +108,12 @@
           />
           <span id="solve-step-label">Paso 0 / 0</span>
         </div>
- 
+
         <div class="solve-buttons">
           <button id="solve-step-back" title="Paso anterior">⏮</button>
           <button id="solve-play-pause" title="Reproducir / pausar">▶</button>
           <button id="solve-step-forward" title="Paso siguiente">⏭</button>
- 
+
           <label class="solve-speed">
             Velocidad
             <select id="solve-speed-select">
@@ -118,22 +122,47 @@
               <option value="200">Rápida</option>
             </select>
           </label>
- 
+
           <button id="solve-close" title="Cerrar y volver a jugar">
             Cerrar
           </button>
         </div>
       </section>
- 
+
       <p id="error-banner" role="alert" hidden></p>
       <p id="status">Cargando…</p>
+
+      <!-- Tablas de puntuación (top 5 por tiempo, se reinician al cerrar la página) -->
+      <section class="scoreboard" id="sb-single" aria-label="Mejores tiempos individuales">
+        <h2>Mejores tiempos</h2>
+        <ol class="sb-list" id="sb-single-list"></ol>
+      </section>
+
+      <section class="scoreboard" id="sb-mp" aria-label="Mejores tiempos de la carrera">
+        <h2>Mejores tiempos · Carrera</h2>
+        <ol class="sb-list" id="sb-mp-list"></ol>
+      </section>
     </main>
- 
+
+    <!-- Ventana para pedir el nombre al entrar al top -->
+    <div class="modal" id="name-modal" hidden>
+      <form class="modal-card" id="name-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+        <h2 id="name-modal-title">¡Entraste al top!</h2>
+        <p id="name-modal-text"></p>
+        <input id="name-input" type="text" maxlength="14" placeholder="Jugador" aria-label="Tu nombre" />
+        <div class="modal-actions">
+          <button type="button" id="name-skip">Omitir</button>
+          <button type="submit" id="name-save" class="primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+
     <!-- Los scripts clásicos mantienen compatibilidad al abrir el HTML desde iniciar.bat. -->
     <script src="js/api.js"></script>
     <script src="js/puzzle-utils.js"></script>
     <script src="js/state.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/scoreboard.js"></script>
     <script src="js/game.js"></script>
     <script src="js/multiplayer.js"></script>
     <script src="js/main.js"></script>

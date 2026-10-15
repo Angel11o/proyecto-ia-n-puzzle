@@ -1,6 +1,10 @@
+/** Teclas del modo individual: WASD y flechas funcionan a la vez. */
+const SINGLE_KEYS = Object.assign({}, MP_KEYS[0], MP_KEYS[1]);
+
 /** Registra los eventos de interfaz y arranca la primera partida. */
 sizeSelect.addEventListener("change", () => {
   const nextSize = parseInt(sizeSelect.value, 10);
+  sizeSelect.blur();
   if (!Number.isInteger(nextSize)) { syncControlsToState(); return; }
   newGame(nextSize, mode);
 });
@@ -18,14 +22,22 @@ window.addEventListener("resize", () => updateHighlight(modeOptionsEl.querySelec
 window.addEventListener("unhandledrejection", (event) => showError(`Error inesperado: ${event.reason?.message || event.reason}`));
 window.addEventListener("error", (event) => showError(`Error inesperado: ${event.message}`));
 window.addEventListener("keydown", (event) => {
-  if (!mp.active || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
+  if (isNameModalOpen()) return;
   if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
   const key = event.key.toLowerCase();
-  for (let player = 0; player < 2; player++) {
-    const direction = MP_KEYS[player][key];
-    if (direction) { event.preventDefault(); mpMoveByKey(player, direction); return; }
+  if (mp.active) {
+    for (let player = 0; player < 2; player++) {
+      const direction = MP_KEYS[player][key];
+      if (direction) { event.preventDefault(); mpMoveByKey(player, direction); return; }
+    }
+    return;
   }
+  const direction = SINGLE_KEYS[key];
+  if (direction) { event.preventDefault(); singleMoveByKey(direction); }
 });
 applyTheme("dark");
 buildModeSelector();
+renderScoreboard("single");
+renderScoreboard("mp");
 newGame();

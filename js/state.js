@@ -19,9 +19,21 @@ let timerStartedAt = null;
 let timerElapsedMs = 0;
 let timerIntervalId = null;
 let lastDisplayed = null;
+/** Última tecla pulsada mientras un movimiento esperaba al backend (se aplica al terminar). */
+let pendingKeyDirection = null;
 
-/** Estado independiente de cada jugador durante una carrera local. */
-const mp = { active: false, boards: [[], []], moves: [0, 0], winner: null, lastDisplayed: [null, null] };
+/** Estado independiente de cada jugador durante una carrera local, más su cronómetro compartido. */
+const mp = {
+  active: false,
+  boards: [[], []],
+  moves: [0, 0],
+  winner: null,
+  lastDisplayed: [null, null],
+  timerRunning: false,
+  timerStartedAt: null,
+  timerElapsedMs: 0,
+  timerIntervalId: null,
+};
 
 const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");

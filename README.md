@@ -31,3 +31,14 @@ La lógica de generación y resolución del N-Puzzle está implementada en un re
 [Backend N-Puzzle — @EdSoria](https://github.com/EdSoria/coco-engine)
 
 Para ejecutar el proyecto completo, primero debes compilar e iniciar ese backend localmente.
+
+## Cómo ejecutarlo (Windows)
+
+1. Clona el repo o descarga el ZIP y descomprímelo.
+2. Descarga `puzzle_server.exe` desde la sección **Releases** del repo del backend: <https://github.com/EdSoria/coco-engine>
+3. Crea una carpeta `backend` dentro del proyecto y guarda ahí el `.exe`
+   (si el release trae DLLs, guárdalas junto al `.exe`).
+4. Doble clic en `iniciar.bat`: arranca el backend en el puerto 8080 y abre la página.
+
+Si ves «No se pudo conectar con el backend», revisa que la ventana del servidor siga abierta
+y que nada más use el puerto 8080.

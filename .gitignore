@@ -17,3 +17,7 @@ build/
 # Registros
 *.log
 npm-debug.log*
+
+# Archivos de compilación y binarios
+backend/*.exe
+backend/*.dll

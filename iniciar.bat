@@ -4,7 +4,7 @@ cd /d "%~dp0"
 title N-Puzzle
 
 set "SERVER=backend\puzzle_server.exe"
-if not exist "%SERVER%" set "SERVER=..\coco-engine2\build\puzzle_server.exe"
+if not exist "%SERVER%" set "SERVER=..\coco-engine2\build-release\puzzle_server.exe"
 
 if not exist "%SERVER%" (
   echo.
